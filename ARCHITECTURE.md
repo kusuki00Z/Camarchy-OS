@@ -4,6 +4,8 @@
 
 **Status:** Design document. No implementation yet.
 
+> ⚠️ **Partially superseded.** Step 1 of §7 is complete — see [`docs/phase-1-findings.md`](docs/phase-1-findings.md), which validated this design against upstream source and corrected several assumptions. Most significantly: pin Omarchy to tag **`v3.8.4`** (master is now `4.0.0.alpha` and has deleted the installer), and the pacman problem in §5 is substantially worse than described here. A correction table is at the end of that document.
+
 ---
 
 ## 1. What we're actually gluing together
@@ -254,7 +256,7 @@ The uncomfortable truth: `omarchy-update` pulling new **migrations** is the long
 
 Ordered by dependency, with the validation work first — the design above contains assumptions that must be tested before any ISO is built.
 
-1. **Validate the conflict surface.** Clone both repos. Diff `packages_desktop.x86_64` + Cachy base manifests against Omarchy's package manifests. Produce a real `exclusions.txt`. *This either confirms §4.2 or rewrites it.*
+1. ~~**Validate the conflict surface.**~~ ✅ **Done** — see [`docs/phase-1-findings.md`](docs/phase-1-findings.md) and [`bootstrap/exclusions.txt`](bootstrap/exclusions.txt). It rewrote §4.2.
 2. **Manual proof-of-concept — no ISO.** Install stock CachyOS in a VM (Btrfs + Limine + no DE, Secure Boot off). Apply the guard patch by hand. Run Omarchy's `install.sh`. **Record every breakage.** This is the single highest-value step; everything downstream is shaped by what fails here.
 3. **Solve pacman.conf.** Build and test `camarchy-pacman-merge` against the PoC box. Verify base updates still resolve to Cachy repos *after* a full `omarchy-update` cycle.
 4. **Script it →** `scripts/install-on-existing-cachyos.sh`. This delivers **Goal #2 on its own**, and is the reusable core of Stage 2. Ship this before touching archiso.

@@ -1,0 +1,48 @@
+# Camarchy-OS — package exclusions
+#
+# Packages Omarchy may install that must NOT land on a CachyOS base.
+# Consumed by Stage 2 to filter Omarchy's package operations.
+#
+# Derived from: docs/phase-1-findings.md (F5, F6)
+# Validated against: basecamp/omarchy @ v3.8.4
+#
+# NOTE: this list is deliberately short. Phase 1 disproved the assumption
+# that Omarchy fights CachyOS for base-system packages — its 149-package
+# base manifest contains no kernel, no mesa, and no bootloader. The real
+# kernel problem is header *resolution* (F6), which an exclusion list
+# cannot fix; it needs patch P2. See docs/phase-1-findings.md.
+#
+# Format: one package per line, '#' comments ignored.
+
+# --- Vanilla kernels & headers (F6) ---------------------------------------
+# CachyOS ships linux-cachyos / linux-cachyos-lts. Omarchy's hardware
+# scripts hardcode these vanilla equivalents, which would install a second
+# kernel or headers that do not match the running kernel, silently breaking
+# DKMS module builds.
+#
+# Referenced by:
+#   install/config/hardware/fix-bcm43xx.sh
+#   install/config/hardware/fix-tuxedo-backlight.sh
+#   install/config/hardware/fix-yt6801-ethernet-adapter.sh
+linux
+linux-headers
+
+# --- Kernel takeover on Intel Panther Lake (F6) ---------------------------
+# install/config/hardware/intel/ptl-kernel.sh REMOVES linux/linux-headers,
+# installs linux-ptl, and rewrites Limine BOOT_ORDER to prefer it:
+#   BOOT_ORDER="linux-ptl*, *fallback, Snapshots"
+# On Camarchy-OS the CachyOS kernel must stay authoritative for boot.
+# Excluded pending a decision on whether PTL audio patches matter enough
+# to warrant a linux-cachyos-based equivalent.
+linux-ptl
+linux-ptl-headers
+
+# --- NOT excluded, deliberately -------------------------------------------
+# limine              CachyOS's limine + limine-snapper-sync is a superset;
+#                     Omarchy only requires the binary be present.
+# mesa / nvidia-utils Absent from Omarchy's base manifest; CachyOS repo
+#                     ordering resolves these to -v3 optimized builds.
+# sddm                Omarchy's display manager. Wanted — it is the DE layer.
+# snapper             Under review: install/config/hardware/../snapper.sh may
+#                     collide with CachyOS snap-pac + limine-snapper-sync.
+#                     Pending step 2 runtime validation.
