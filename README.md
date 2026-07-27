@@ -1,4 +1,4 @@
-# Camachy-OS
+# Camarchy-OS
 This is my attempt to create my own ISO with CachyOS as the base, and Omarchy on top as DE. 
 
 # Goals
